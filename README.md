@@ -1,6 +1,6 @@
 # Sample Queries
 
--- non-opt query
+## non-opt query
 ```sql
 SELECT 
     e1.lifecycle_id,
@@ -25,10 +25,11 @@ WHERE e1.sender_transaction_amount IS NOT NULL
 ORDER BY amount_diff DESC;
 ```
 
--- opt query
+## opt query
 
+```sql
 WITH ranked_events AS (
-  SELECT 
+  SELECT
     lifecycle_id, 
     event_type, 
     sender_transaction_amount,
@@ -59,14 +60,11 @@ JOIN
   ranked_events e2 ON e1.lifecycle_id = e2.lifecycle_id AND e1.rn = e2.rn - 1
 ORDER BY 
   amount_diff DESC;
-  
-  
-  
-  
-  
- -- non opt
+```
+
+## non opt
  
- 
+```sql 
 SELECT 
     lifecycle_id,
     event_type,
@@ -89,14 +87,11 @@ WHERE lifecycle_id IS NOT NULL
     AND event_type IS NOT NULL
     AND REGEXP_CONTAINS(lifecycle_id, r'^[A-Za-z0-9]+$')
 ORDER BY sender_transaction_amount DESC;
- 
- 
- 
- 
- 
- 
- -- opt query
- 
+```
+
+## opt query
+
+```sql
  WITH filtered_events AS (
   SELECT 
     lifecycle_id,
@@ -123,14 +118,11 @@ ORDER BY sender_transaction_amount DESC;
 SELECT *
 FROM filtered_events
 ORDER BY sender_transaction_amount DESC;
+```
 
+## non opt query
 
-
-
-
-
-
--- non opt query
+```sql
 SELECT 
     UPPER(TRIM(sender_transaction_currency)) as clean_currency,
     LOWER(TRIM(event_type)) as clean_event_type,
@@ -149,7 +141,7 @@ WHERE sender_transaction_amount IS NOT NULL
     AND TRIM(event_type) != ''
 GROUP BY UPPER(TRIM(sender_transaction_currency)), LOWER(TRIM(event_type))
 ORDER BY total_amount DESC;
-
+```
 
 
 -- opt query
