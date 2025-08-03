@@ -1,7 +1,7 @@
 # Sample Queries
 
 -- non-opt query
-
+```sql
 SELECT 
     e1.lifecycle_id,
     e1.event_type as first_event,
@@ -23,7 +23,7 @@ WHERE e1.sender_transaction_amount IS NOT NULL
     AND e2.sender_transaction_amount IS NOT NULL
     AND TRIM(e1.event_type) != TRIM(e2.event_type)
 ORDER BY amount_diff DESC;
-
+```
 
 -- opt query
 
