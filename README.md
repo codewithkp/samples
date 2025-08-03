@@ -144,8 +144,9 @@ ORDER BY total_amount DESC;
 ```
 
 
--- opt query
+## opt query
 
+```sql
 WITH cleaned_data AS (
   SELECT 
     UPPER(TRIM(sender_transaction_currency)) AS clean_currency,
@@ -172,3 +173,4 @@ SELECT
 FROM cleaned_data
 GROUP BY clean_currency, clean_event_type
 ORDER BY total_amount DESC;
+```
