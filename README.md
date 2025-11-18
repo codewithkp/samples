@@ -11,3 +11,21 @@ Additionally, we have identified two new query patterns that show significant im
 Please let us know if we can walk through these findings together or if someone from the functional team can review the logic with us. This will help ensure the recommendations are applied correctly and safely.
 
 Thanks again for the continued collaboration.
+
+
+
+
+
+
+
+Thank you for your detailed inputs. I would like to reiterate that the primary purpose of the application is to identify hotspots in query patterns, and it is performing that job effectively. As shared earlier, based on our initial understanding, we have already identified multiple query patterns with potential optimisation opportunities.
+
+However, as rightly mentioned by your team, functional and business context plays a very critical role in confirming which optimisation is safe to apply without altering the expected behaviour of the queries. This is why the team has been spending time understanding the business logic behind these queries, so that our suggestions are accurate and do not impact the correctness of your data.
+
+In continuation, we have analysed further and are attaching two additional patterns where we see a 70% and 100% scan reduction respectively. These queries are executed daily, so the potential impact is significant. The exact cost savings, however, can be evaluated more accurately once these optimisations are implemented in your DEV or TEST environments and a few cycles of execution are observed.
+
+We also want to highlight that a couple of optimisation patterns were already shared earlier, which also have strong potential for improvement — but again, they need business validation to ensure the intended logic remains intact.
+
+We sincerely appreciate your collaboration so far. With continued functional guidance from your team, we will be able to jointly refine these queries and maximise performance gains without affecting correctness.
+
+Thanks and looking forward to working closely on the next steps.
