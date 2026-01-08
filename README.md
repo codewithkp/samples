@@ -1,31 +1,54 @@
-Thank you for your patience. I wanted to share a brief update and also clarify the purpose of the optimisation application.
+```python
+import json
+import sys
 
-The primary goal of the system is to identify hotspots and inefficiencies in query patterns, and on that front, the application is performing exactly as intended. As mentioned earlier, based on our current understanding, we have been able to identify multiple optimisation opportunities and suggest specific areas where improvements can be made.
+def load_json_array(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        if not isinstance(data, list):
+            raise ValueError(f"{file_path} does not contain a JSON array")
+        return data
 
-That said, to implement the optimal recommendations, we do require functional expertise from your side. Many of these queries are tightly coupled with business logic, and without clarity on their functional intent, there is a risk of altering the behaviour. Our aim is to ensure the optimisation is both technically sound and functionally accurate. This naturally takes time as the team analyses the queries with the limited functional context available.
+def index_by_key(records, key):
+    index = {}
+    for record in records:
+        if key not in record:
+            raise KeyError(f"Missing unique key '{key}' in record: {record}")
+        index[record[key]] = record
+    return index
 
-We truly value the collaborative effort here, and your guidance on the functional side will help us refine and accelerate the optimisation process.
+def compare_files(file1, file2, unique_key):
+    data1 = index_by_key(load_json_array(file1), unique_key)
+    data2 = index_by_key(load_json_array(file2), unique_key)
 
-Additionally, we have identified two new query patterns that show significant improvement potential — one with ~70% scan reduction and another with ~100% scan reduction. Both of these queries are executed daily, which means they could deliver meaningful cost benefits once implemented. However, the exact cost impact will be clearer after applying these changes in your DEV or TEST environment, where execution frequency and data volumes reflect your real workload.
+    all_ids = set(data1.keys()) | set(data2.keys())
 
-Please let us know if we can walk through these findings together or if someone from the functional team can review the logic with us. This will help ensure the recommendations are applied correctly and safely.
+    print("uniqueid,fieldname,file1Value,file2Value")
 
-Thanks again for the continued collaboration.
+    for uid in sorted(all_ids):
+        rec1 = data1.get(uid, {})
+        rec2 = data2.get(uid, {})
 
+        all_fields = set(rec1.keys()) | set(rec2.keys())
 
+        for field in all_fields:
+            if field == unique_key:
+                continue
 
+            val1 = rec1.get(field)
+            val2 = rec2.get(field)
 
+            if val1 != val2:
+                print(f"{uid},{field},{json.dumps(val1)},{json.dumps(val2)}")
 
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("Usage: python compare_json.py file1.json file2.json unique_key")
+        sys.exit(1)
 
+    file1_path = sys.argv[1]
+    file2_path = sys.argv[2]
+    unique_key = sys.argv[3]
 
-Thank you for your detailed inputs. I would like to reiterate that the primary purpose of the application is to identify hotspots in query patterns, and it is performing that job effectively. As shared earlier, based on our initial understanding, we have already identified multiple query patterns with potential optimisation opportunities.
-
-However, as rightly mentioned by your team, functional and business context plays a very critical role in confirming which optimisation is safe to apply without altering the expected behaviour of the queries. This is why the team has been spending time understanding the business logic behind these queries, so that our suggestions are accurate and do not impact the correctness of your data.
-
-In continuation, we have analysed further and are attaching two additional patterns where we see a 70% and 100% scan reduction respectively. These queries are executed daily, so the potential impact is significant. The exact cost savings, however, can be evaluated more accurately once these optimisations are implemented in your DEV or TEST environments and a few cycles of execution are observed.
-
-We also want to highlight that a couple of optimisation patterns were already shared earlier, which also have strong potential for improvement — but again, they need business validation to ensure the intended logic remains intact.
-
-We sincerely appreciate your collaboration so far. With continued functional guidance from your team, we will be able to jointly refine these queries and maximise performance gains without affecting correctness.
-
-Thanks and looking forward to working closely on the next steps.
+    compare_files(file1_path, file2_path, unique_key)
+```
