@@ -1,8 +1,10 @@
 ```python
 import os
 import requests
-import sqlparse
 import pandas as pd
+import sqlglot
+from sqlglot import parse_one
+from sqlglot.errors import ParseError
 
 # -----------------------------
 # Configuration
@@ -21,7 +23,6 @@ PAYLOAD = {
 OUTPUT_SQL_DIR = "queries"
 SUMMARY_CSV_FILE = "summary.csv"
 
-# Create directory if not exists
 os.makedirs(OUTPUT_SQL_DIR, exist_ok=True)
 
 
@@ -30,24 +31,41 @@ os.makedirs(OUTPUT_SQL_DIR, exist_ok=True)
 # -----------------------------
 def fetch_records():
     try:
-        response = requests.post(API_URL, json=PAYLOAD, verify=False)  # verify=False if internal SSL
+        response = requests.post(API_URL, json=PAYLOAD, verify=False)
         response.raise_for_status()
         return response.json().get("data", [])
     except requests.exceptions.RequestException as e:
-        print(f"Error calling API: {e}")
+        print(f"❌ API Error: {e}")
         return []
 
 
 # -----------------------------
-# Step 2: Format SQL
+# Step 2: Format SQL using sqlglot
 # -----------------------------
 def format_sql(query):
-    return sqlparse.format(
-        query,
-        reindent=True,
-        keyword_case="upper",
-        strip_comments=False
-    )
+    if not query:
+        return query
+
+    # Ignore Stored Procedure Calls
+    if query.strip().upper().startswith("CALL"):
+        print("ℹ Skipping formatting for stored procedure CALL")
+        return query
+
+    try:
+        parsed = parse_one(query, read="bigquery")
+        formatted = parsed.sql(
+            pretty=True,
+            dialect="bigquery"
+        )
+        return formatted
+
+    except ParseError as pe:
+        print(f"⚠ Parse error while formatting SQL: {pe}")
+        return query  # fallback to raw query
+
+    except Exception as e:
+        print(f"⚠ Unexpected formatting error: {e}")
+        return query
 
 
 # -----------------------------
@@ -61,21 +79,23 @@ def process_records(records):
         query = record.get("query", "")
 
         if not log_id:
-            print("Skipping record without log_id")
+            print("⚠ Skipping record without log_id")
             continue
 
-        # Format SQL
+        # Format SQL safely
         formatted_query = format_sql(query)
 
         # Write SQL to file
         sql_filename = os.path.join(OUTPUT_SQL_DIR, f"{log_id}.sql")
-        with open(sql_filename, "w", encoding="utf-8") as f:
-            f.write(formatted_query)
+        try:
+            with open(sql_filename, "w", encoding="utf-8") as f:
+                f.write(formatted_query)
+        except Exception as e:
+            print(f"⚠ Failed writing file {sql_filename}: {e}")
 
-        # Remove query field for summary
+        # Prepare summary (exclude query)
         record_copy = record.copy()
         record_copy.pop("query", None)
-
         summary_data.append(record_copy)
 
     return summary_data
@@ -85,12 +105,16 @@ def process_records(records):
 # Step 4: Write Summary CSV
 # -----------------------------
 def write_summary_csv(summary_data):
-    if summary_data:
+    if not summary_data:
+        print("No data available for summary CSV")
+        return
+
+    try:
         df = pd.DataFrame(summary_data)
         df.to_csv(SUMMARY_CSV_FILE, index=False)
-        print(f"Summary CSV written to {SUMMARY_CSV_FILE}")
-    else:
-        print("No data to write to CSV")
+        print(f"✅ Summary CSV written to {SUMMARY_CSV_FILE}")
+    except Exception as e:
+        print(f"❌ Failed writing summary CSV: {e}")
 
 
 # -----------------------------
@@ -103,5 +127,5 @@ if __name__ == "__main__":
     summary_data = process_records(records)
     write_summary_csv(summary_data)
 
-    print("Processing completed.")
+    print("✅ Processing completed.")
 ```
