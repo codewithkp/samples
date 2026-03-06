@@ -1,57 +1,23 @@
 ```python
-import re
+def process_sql_files():
 
-def transform_query(query):
+    for filename in os.listdir(OUTPUT_SQL_DIR):
 
-    if not query:
-        return query
+        if not filename.endswith(".sql"):
+            continue
 
-    # ---------------------------------
-    # 1 Remove comments
-    # ---------------------------------
-    query = re.sub(r"--.*?$", "", query, flags=re.MULTILINE)
-    query = re.sub(r"/\*.*?\*/", "", query, flags=re.DOTALL)
+        source_file = os.path.join(OUTPUT_SQL_DIR, filename)
+        target_file = os.path.join(OUTPUT_DEV_SQL_DIR, filename)
 
-    # ---------------------------------
-    # 2 DELETE -> SELECT
-    # ---------------------------------
-    delete_pattern = re.compile(r"^\s*DELETE\s+FROM", re.IGNORECASE)
-    if delete_pattern.search(query):
-        query = delete_pattern.sub("SELECT * FROM", query)
+        try:
+            with open(source_file, "r", encoding="utf-8") as f:
+                query = f.read()
 
-    # ---------------------------------
-    # 3 INSERT INTO -> Extract SELECT
-    # ---------------------------------
-    insert_pattern = re.compile(
-        r"INSERT\s+INTO\s+[^\(]+\([^\)]*\)\s*(SELECT.*)",
-        re.IGNORECASE | re.DOTALL
-    )
+            processed_query = transform_query(query)
 
-    match = insert_pattern.search(query)
+            with open(target_file, "w", encoding="utf-8") as f:
+                f.write(processed_query)
 
-    if match:
-        query = match.group(1)
-
-    # ---------------------------------
-    # 4 MERGE -> Extract SELECT from USING
-    # Pattern:
-    # MERGE INTO table USING (SELECT ...) AS src
-    # ---------------------------------
-    merge_pattern = re.compile(
-        r"MERGE\s+INTO\s+.*?USING\s*\((SELECT.*?)\)\s+AS",
-        re.IGNORECASE | re.DOTALL
-    )
-
-    match = merge_pattern.search(query)
-
-    if match:
-        query = match.group(1)
-
-    # ---------------------------------
-    # 5 Environment replacements
-    # ---------------------------------
-    query = query.replace("-prod", "-dev")
-    query = query.replace("_PROD", "_DEV_SIT")
-
-    return query.strip()
+        except Exception as e:
+            print(f"⚠ Error processing {filename}: {e}")
 ```
