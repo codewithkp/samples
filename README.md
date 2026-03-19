@@ -231,3 +231,30 @@ If you'd like, I can give you a **very powerful parallel version of this method 
 ```
 
 and is safe for API throttling.
+
+```
+Hi Vishal,
+
+I hope you are doing well.
+
+We are pleased to inform you that the project has been successfully completed in line with the agreed scope and objectives. It has been a great experience collaborating with the team, and we truly appreciate the support and cooperation extended throughout the engagement.
+
+As we are done with the technical closure, we would like to initiate the offboarding of the following resources associated with this project:
+
+1. Gaurav Bhisikar (45231532)
+2. Anish2 Kumar (45449840)
+3. Anand Khandelwal (45449844)
+4. Darshana Bhuyan (45449843)
+5. Trupti Ganesh Dhone ()
+6. Ankit V Khandelwal (43584238)
+7. Prashant Kilari (45449831)
+
+The offboarding process will be carried out smoothly, ensuring proper knowledge transfer, documentation handover, and closure of any pending items, if applicable.
+We would appreciate if this can be done at the earliest - do let us know how much time will this require.
+
+Thank you once again for the opportunity to work together. We look forward to engaging with you on future initiatives.
+
+Thanks & regards,
+Prashant Kilari
+
+```
